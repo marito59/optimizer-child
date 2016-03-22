@@ -1,0 +1,116 @@
+/*
+ Theme Name:   Optimizer Child
+ Theme URI:    http://goutdubio.fr/optimizer-child/
+ Description:  Optimizer Theme
+ Author:       Christian Maritorena
+ Author URI:   http://example.com
+ Template:     optimizer
+ Version:      1.0.0
+ License:      GNU General Public License v2 or later
+ License URI:  http://www.gnu.org/licenses/gpl-2.0.html
+ Tags:         light, dark, two-columns, right-sidebar, responsive-layout, accessibility-ready
+ Text Domain:  optimizer-child
+*/
+
+.woocommerce ul.products li.product {
+    width: 100%
+}
+
+.woocommerce ul.products li.product .price {
+    display: inline;
+    padding-right: 30px;
+}
+
+.woocommerce-ordering {
+    display: none;
+}
+
+ul.products > li.product > div > ul > li {
+    list-style: disc;
+    margin-left: 30px;
+}
+
+div[itemprop=description] {
+    font-size: 0.9em;
+    padding-left: 5%;
+}
+
+span.category > h2 {
+    margin-top: 12px;
+    margin-bottom: 24px;
+    border-top: 2px solid #993399;
+}
+
+p.cat_desc {
+    padding-left: 5%;
+    margin-bottom: 48px;
+}
+
+#topmenu {
+    clear:left;
+    text-align: left;
+}
+
+.home .page_head {
+    display: none;
+}
+
+.page_head {
+	min-height: initial; 
+	text-align: left; 
+}
+#gdb-qui {
+    color: white;
+}
+
+
+.single_post {
+    padding-bottom: 0px;
+}
+
+#row-herbe .wpb_content_element {
+    margin-bottom: 0px;
+}
+
+.home .single_post_content > ul {
+    margin: 0 0 0 0;
+}
+
+.gdb-post-image {
+	width: 90px;
+	float: left;
+	overflow: auto;
+	padding: 0px 20px 0px 0px;
+}
+
+.listing-item {
+    overflow: auto;
+}
+
+.listing-item .moretag {
+    text-transform: initial;
+    border-style: none;
+}
+
+.listing-item a {
+    font-weight: bold;
+}
+
+.page_head .pagetitle_wrap {
+    margin: 20px auto;
+}
+
+.lay4 .post_image {
+	width: initial;
+}
+
+.lay4 .post_content {
+	float: left;
+}
+
+.recettes {
+    float: right;
+    margin-top: -40px;
+    background-color: #dddddd;
+    padding: 6px;
+}

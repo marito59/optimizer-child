@@ -3,22 +3,20 @@ if (class_exists('Woocommerce')) {
 	function cma_init_woo_actions() {
 		function go_hooks() {
 			remove_action( 'wwoocommerce_before_subcategory_title', 'woocommerce_subcategory_thumbnail', 10);
+
             remove_action( 'woocommerce_before_shop_loop_item_title', 'woocommerce_template_loop_product_thumbnail', 10);
+
 			add_action( 'woocommerce_shop_loop_item_title', 'woocommerce_template_single_excerpt', 25);
             add_action( 'woocommerce_shop_loop_item_title', 'woocommerce_product_description_tab', 20);
-            //add_action( 'woocommerce_after_shop_loop_item_title', 'woocommerce_product_description_tab', 10);
-			remove_action( 'woocommerce_before_shop_loop_item', 'woocommerce_template_loop_product_link_open', 10);
-            remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_product_link_close', 5);
-            //add_action( 'woocommerce_after_shop_loop_item', 'cma_add_recettes', 5);
-           
-            add_action( 'woocommerce_shop_loop_item_title', 'cma_add_category_description', 5);
+            add_action( 'woocommerce_shop_loop_item_title', 'gdb_add_category_description', 5);
+
+ 			remove_action( 'woocommerce_before_shop_loop_item', 'woocommerce_template_loop_product_link_open', 10);
+            remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_product_link_close', 5);  
 		}
 		
-
 		go_hooks();
 			
 	}
-
 	add_action( 'wp', 'cma_init_woo_actions' , 10);
     
     function cma_woo_columns( $columns ){
@@ -40,11 +38,6 @@ function theme_enqueue_styles() {
     );
 }
 add_action( 'wp_enqueue_scripts', 'theme_enqueue_styles' );
-/*add_action( 'wp_enqueue_scripts', 'theme_enqueue_styles' );
-function theme_enqueue_styles() {
-    wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' );
-
-}*/
 
 /**
  * Setup My Child Theme's textdomain.
@@ -57,7 +50,8 @@ function my_child_theme_setup() {
 }
 add_action( 'after_setup_theme', 'my_child_theme_setup' );
 
-function cma_add_category_description() {
+
+function gdb_add_category_description() {
     //CMA
     global $product, $prev_term;
     $categ = $product->get_categories();
@@ -71,7 +65,7 @@ function cma_add_category_description() {
         echo sprintf ('<h2>%s</h2>', $term->name);
         echo sprintf ('<p class="cat_desc">%s</p>', $term->description);
         echo ('</span>');
-        cma_gdb_recettes( $term->slug, $term->name);
+        gdb_add_recettes( $term->slug, $term->name);
 
         $prev_term = $term->term_id;
         
@@ -79,15 +73,6 @@ function cma_add_category_description() {
     // end CMA
 }
 
-// not used
-function cma_add_recettes() {
-    global $product;
-    
-    $categ = $product->get_categories();
-    $term = get_term_by ( 'name' , strip_tags($categ), 'product_cat' );
-    
-    cma_gdb_recettes ( $term->slug, $term->name );
-}
 
 global $contact_options;
 $contact_options = array(
@@ -105,8 +90,8 @@ $contact_options = array(
 /**
  * Add the field to the checkout
  */
-add_action( 'woocommerce_after_order_notes', 'cma_woo_gdb_order_notes' );
-function cma_woo_gdb_order_notes ($checkout) {
+add_action( 'woocommerce_after_order_notes', 'gdb_woo_order_notes' );
+function gdb_woo_order_notes ($checkout) {
     global $contact_options;
     
     //echo '<div id="livraison_field"><h2>' . __('Lieu de livraison souhaité') . '</h2>';
@@ -132,7 +117,7 @@ function cma_woo_gdb_order_notes ($checkout) {
 /**
  * Process the checkout
  */
-add_action('woocommerce_checkout_process', 'cma_woo_gdb_order_livraison_process');
+add_action('woocommerce_checkout_process', 'gdb_woo_order_livraison_process');
 
 function cma_woo_gdb_order_livraison_process() {
     // Check if set, if its not set add an error.
@@ -143,9 +128,9 @@ function cma_woo_gdb_order_livraison_process() {
 /**
  * Update the order meta with field value
  */
-add_action( 'woocommerce_checkout_update_order_meta', 'cma_woo_gdb_order_update_order_meta' );
+add_action( 'woocommerce_checkout_update_order_meta', 'gdb_woo_order_update_order_meta' );
 
-function cma_woo_gdb_order_update_order_meta( $order_id ) {
+function gdb_woo_order_update_order_meta( $order_id ) {
     if ( ! empty( $_POST['livraison'] ) ) {
         update_post_meta( $order_id, 'livraison', sanitize_text_field( $_POST['livraison'] ) );
     }
@@ -158,88 +143,34 @@ function cma_woo_gdb_order_update_order_meta( $order_id ) {
 /**
  * Display field value on the order edit page
  */
-add_action( 'woocommerce_admin_order_data_after_billing_address', 'cma_woo_gdb_order_display_admin_order_meta', 10, 1 );
+add_action( 'woocommerce_admin_order_data_after_billing_address', 'gdb_woo_order_display_admin_order_meta', 10, 1 );
 
-function cma_woo_gdb_order_display_admin_order_meta($order){
+function gdb_woo_order_display_admin_order_meta($order){
     global $contact_options;
     
     echo '<p><strong>'.__('Lieu de livraison').':</strong> ' . get_post_meta( $order->id, 'livraison', true ) . '</p>';
     echo '<p><strong>'.__('Contact').':</strong> ' .$contact_options[get_post_meta( $order->id, 'contact', true )] . '</p>';
 }
 
-/** NOT USED **
- * le lien est passé à la fonction au lieu des données brutes
- * on a modifié le template
- */
-/*add_filter( 'woocommerce_order_item_name', 'cma_gdb_order_item_name', 10, 3);
-function cma_gdb_order_item_name( $item_name, $item, $visible ) {
-   $name = $item_name;
-   return $name;
-}
-*/
-
 /*
  * display all products in page
  */
 add_filter( 'loop_shop_per_page', create_function( '$cols', 'return -1;' ), 20 );
 
-/* 
- * sort product by category
- */
-/*add_filter( 'woocommerce_get_catalog_ordering_args', 'gdb_woocommerce_get_catalog_ordering_args' );
-function gdb_woocommerce_get_catalog_ordering_args( $args ) {
-//  $orderby_value = isset( $_GET['orderby'] ) ? woocommerce_clean( $_GET['orderby'] ) : apply_filters( 'woocommerce_default_catalog_orderby', get_option( 'woocommerce_default_catalog_orderby' ) );
-//	if ( 'random_list' == $orderby_value ) {
- 
-		$args['orderby'] = 'product_cat';
-		$args['order'] = '';
-		$args['meta_key'] = '';
-	//}
-	return $args;
-}
-*/
-add_filter( 'woocommerce_get_catalog_ordering_args', 'gdb_woocommerce_get_catalog_ordering_args' );
-function gdb_woocommerce_get_catalog_ordering_args( $args ) {
-     /*$args = array(
-        'orderby' => array('menu_order' => 'ASC', 'title' => 'ASC')
-    );*/
-    		$args['orderby'] = 'menu_order';
+add_filter( 'woocommerce_get_catalog_ordering_args', 'gdb_woo_get_catalog_ordering_args' );
+function gdb_woo_get_catalog_ordering_args( $args ) {
+    	$args['orderby'] = 'menu_order';
 		$args['order'] = 'asc';
 		$args['meta_key'] = '';
 
     return $args;
 }
-/*function order_by_multiple() {
-if(function_exists('is_woocommerce')){
- if(is_woocommerce()||is_search()||is_product_category())    return ' tm.meta_value, post_title';
- }
-}
-function product_order_join($join){
-global $wpdb;
-if(function_exists('is_woocommerce')){
- if(is_woocommerce()||is_search()||is_product_category()){
- $join.= " JOIN " . $wpdb->term_relationships ." tr ON " . $wpdb->posts . ".id = tr.object_id JOIN " . $wpdb->term_taxonomy ." tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy =  'product_cat' JOIN " . $wpdb->terms ." t ON tt.term_id = t.term_id
- join " . $wpdb->woocommerce_termmeta ." tm on tm.woocommerce_term_id = t.term_id and tm.meta_key = 'order'	";}
- }
- return $join;
-
-}
-add_filter("posts_join","product_order_join");*/
-//IF(!is_admin())add_filter("posts_orderby", "order_by_multiple");
-
-
-/*add_filter( 'woocommerce_default_catalog_orderby_options', 'custom_woocommerce_catalog_orderby' );
-add_filter( 'woocommerce_catalog_orderby', 'custom_woocommerce_catalog_orderby' );
-function custom_woocommerce_catalog_orderby( $sortby ) {
-	$sortby['random_list'] = 'Random';
-	return $sortby;
-}*/
 
 /*
  * Affiche les certificats Bio des producteurs qui sont des sous-pages de la page du producteur
  */
 
-function cma_gdb_certificats($parent_id) {
+function gdb_certificats($parent_id) {
     $second_query = new WP_Query(array('post_parent'=>$parent_id, 'post_type'=>'page', 'posts_per_page'=>-1, 'order'=>'ASC', 'orderby'=>'menu_order'));
     echo '<ul>';
     // The Loop
@@ -282,7 +213,7 @@ function cma_gdb_certificats($parent_id) {
  *     - dans la recette, on prend le mot clé
  */
  
-function cma_gdb_recettes($categorie_slug, $category_name) {
+function gdb_add_recettes($categorie_slug, $category_name) {
     $args = array(
         'post_type' => 'post',
         'tax_query' => array(
@@ -299,16 +230,15 @@ function cma_gdb_recettes($categorie_slug, $category_name) {
     $second_query = new WP_Query($args);
 
     // The Loop
-    // just output 3
     $count = 0;
     echo ('<span class="recettes">');
-    while( $second_query->have_posts() /*&& $count < 3*/) : $second_query->the_post();
+    while( $second_query->have_posts() ) : $second_query->the_post();
         if ($count == 0) {
             echo ( '<h3>Les recettes</h3>');
             echo '<ul>';
         }
         echo ( '<li><b>' );
-        echo ( '<a href="' . get_permalink() .'" rel="bookmark" title="Permanent Link to "' . the_title_attribute( 'echo=0' ) . '">' );
+        echo ( '<a href="' . get_permalink() .'" rel="bookmark" title="lien vers "' . the_title_attribute( 'echo=0' ) . '">' );
         echo get_the_title(); 
         echo ( '</a>' );
         echo ( '</b><br /> '); 
@@ -336,8 +266,8 @@ function cma_gdb_recettes($categorie_slug, $category_name) {
  * @return $output string, the modified markup for an individual post
  */
  
-add_filter( 'display_posts_shortcode_output', 'cma_gdb_display_posts_wrappers', 10, 7 );
-function cma_gdb_display_posts_wrappers( $output, $atts, $image, $title, $date, $excerpt, $inner_wrapper ) {
+add_filter( 'display_posts_shortcode_output', 'gdb_display_posts_wrappers', 10, 7 );
+function gdb_display_posts_wrappers( $output, $atts, $image, $title, $date, $excerpt, $inner_wrapper ) {
 	
     $image = '<span class="gdb-post-image">' . $image . '</span>';    
 	$excerpt = '<span class="gdb-post-excerpt">' . $excerpt . '</span>';
@@ -349,14 +279,14 @@ function cma_gdb_display_posts_wrappers( $output, $atts, $image, $title, $date, 
 	return $output;
 }
 
-add_filter( 'woocommerce_cart_item_thumbnail', 'cma_gdb_cart_remove_thumbnail', 3, 3);
-function cma_gdb_cart_remove_thumbnail($image, $item, $key) {
+add_filter( 'woocommerce_cart_item_thumbnail', 'gdb_cart_remove_thumbnail', 3, 3);
+function gdb_cart_remove_thumbnail($image, $item, $key) {
     return "";
 } 
 
-add_filter( 'woocommerce_cart_item_permalink','cma_gdb_cart_remove_permalink');
+add_filter( 'woocommerce_cart_item_permalink','gdb_cart_remove_permalink');
 
-function cma_gdb_cart_remove_permalink() {
+function gdb_cart_remove_permalink() {
     return "";
 }
 /*

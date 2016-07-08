@@ -43,7 +43,7 @@ Template Name: Full Width Page Child
                                     </div>
                                 <!--THE CONTENT END-->
                        
-                                <?php cma_gdb_certificats(get_the_ID()) ?>
+                                <?php gdb_certificats(get_the_ID()) ?>
                         </div>
                         <!--PAGE CONTENT END-->                       
                   </div>

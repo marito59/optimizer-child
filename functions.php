@@ -4,7 +4,8 @@ if (class_exists('Woocommerce')) {
 		function go_hooks() {
 			remove_action( 'wwoocommerce_before_subcategory_title', 'woocommerce_subcategory_thumbnail', 10);
             remove_action( 'woocommerce_before_shop_loop_item_title', 'woocommerce_template_loop_product_thumbnail', 10);
-			add_action( 'woocommerce_shop_loop_item_title', 'woocommerce_template_single_excerpt', 20);
+			add_action( 'woocommerce_shop_loop_item_title', 'woocommerce_template_single_excerpt', 25);
+            add_action( 'woocommerce_shop_loop_item_title', 'woocommerce_product_description_tab', 20);
             //add_action( 'woocommerce_after_shop_loop_item_title', 'woocommerce_product_description_tab', 10);
 			remove_action( 'woocommerce_before_shop_loop_item', 'woocommerce_template_loop_product_link_open', 10);
             remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_product_link_close', 5);
@@ -45,6 +46,17 @@ function theme_enqueue_styles() {
 
 }*/
 
+/**
+ * Setup My Child Theme's textdomain.
+ *
+ * Declare textdomain for this child theme.
+ * Translations can be filed in the /languages/ directory.
+ */
+function my_child_theme_setup() {
+    load_child_theme_textdomain( 'optimizer', get_stylesheet_directory() . '/languages' );
+}
+add_action( 'after_setup_theme', 'my_child_theme_setup' );
+
 function cma_add_category_description() {
     //CMA
     global $product, $prev_term;
@@ -55,7 +67,7 @@ function cma_add_category_description() {
     if ($term->term_id == $prev_term) {
         // do nothing
     } else {
-        echo sprintf ('<span class="category cat-%s">', $term->slug);
+        echo sprintf ('<span id="cat-%s" class="category cat-%s">', $term->slug, $term->slug);
         echo sprintf ('<h2>%s</h2>', $term->name);
         echo sprintf ('<p class="cat_desc">%s</p>', $term->description);
         echo ('</span>');
@@ -290,9 +302,9 @@ function cma_gdb_recettes($categorie_slug, $category_name) {
     // just output 3
     $count = 0;
     echo ('<span class="recettes">');
-    while( $second_query->have_posts() && $count++ < 3) : $second_query->the_post();
-        if ($count == 1) {
-            echo ( '<h4>Les recettes</h4>');
+    while( $second_query->have_posts() /*&& $count < 3*/) : $second_query->the_post();
+        if ($count == 0) {
+            echo ( '<h3>Les recettes</h3>');
             echo '<ul>';
         }
         echo ( '<li><b>' );
@@ -301,6 +313,7 @@ function cma_gdb_recettes($categorie_slug, $category_name) {
         echo ( '</a>' );
         echo ( '</b><br /> '); 
         echo '</li>';
+        $count++;
     endwhile;
     if ($count > 0) echo '</ul>';
     echo ('</span>');
@@ -341,6 +354,11 @@ function cma_gdb_cart_remove_thumbnail($image, $item, $key) {
     return "";
 } 
 
+add_filter( 'woocommerce_cart_item_permalink','cma_gdb_cart_remove_permalink');
+
+function cma_gdb_cart_remove_permalink() {
+    return "";
+}
 /*
  * Reveal Pages IDs in admin 
  * sample from @link https://premium.wpmudev.org/blog/display-wordpress-post-page-ids/
@@ -389,4 +407,26 @@ foreach ( $taxonomies as $taxonomy ) {
 }
  */
  
+add_action( 'woocommerce_cart_collaterals', 'gdb_return_to_shop_button' );
+
+function gdb_return_to_shop_button () {
+    wc_get_template( 'cart/cart-return.php' );
+}
+
+function gdb_get_shop_url() {
+	return  wc_get_page_permalink( 'shop' );
+}
+
+/*
+ * copied from https://codex.wordpress.org/Plugin_API/Action_Reference/pre_get_posts
+ */
+ 
+function exclude_category( $query ) {
+    if ( $query->is_home() && $query->is_main_query() ) {
+        $query->set( 'cat', '-6' );
+    }
+}
+add_action( 'pre_get_posts', 'exclude_category' );
+
+
 ?>
